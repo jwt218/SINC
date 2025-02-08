@@ -28,13 +28,13 @@ You can also set this manually via MATLAB's file explorer.
 IsoNQ's parseQ function processes CSV files exported directly from Qtegra.
 To ensure compatibility, follow these steps:
 
-Open the Query tab in the Qtegra LabBook for the analysis sequence.
-Select all available checkboxes to include all data.
-Click Refresh to update the table.
-In the toolbar, click Export.
-In the export window, select Qtegra EXPORT CSV as the format.
-Click Export and save the file.
-Do not modify the exported file before using it in IsoNQ.
+- Open the Query tab in the Qtegra LabBook for the analysis sequence.
+- Select all available checkboxes to include all data.
+- Click Refresh to update the table.
+- In the toolbar, click Export.
+- In the export window, select Qtegra EXPORT CSV as the format.
+- Click Export and save the file.
+- Do not modify the exported file before using it in IsoNQ.
 
 5. View Function Documentation
 To view function documentation within MATLAB, use:
