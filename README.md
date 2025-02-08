@@ -1,6 +1,11 @@
 ## IsoNQ
 MATLAB package for Qtegra-generated data file processing.
 
+## Citation
+If you use IsoNQ in your research, please cite the following:
+
+pending ...
+
 ## Before Using IsoNQ
 1. Download and Set Up the Package
 Download the IsoNQ package from GitHub and extract the files to a desired location.
