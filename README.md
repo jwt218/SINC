@@ -130,8 +130,8 @@ The IsoNQ workflow is designed for n-alkane δ¹³C and δD analysis but may be 
 If you modify processing settings, always verify outputs using PX.Descriptions.
 For further inquiries, open an issue on the GitHub repository.
 
-## License
-This project is licensed under the MIT License.
+## Copyright and License
+© 2025 Julian Traphagan. This project is licensed under the MIT License. See the LICENSE file for details.
 
 
 
