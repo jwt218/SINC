@@ -9,7 +9,7 @@ function [WT] = weightQ(AQ,IX,varargin)
 %   Error             - Output from errorQ [struct]
 %   Plot            - Option to generate output figures into a directory ('yes' or 'no')
 %   RemoveFlags     - Option to remove values above uncertainty threshold ('yes' or 'no')
-% Outputs: [WT] is a table with weighted averages and weights.
+% Outputs: [WT] is a struct with fields Data.
 %
 % Example Usage:
 %   WT = weightQ(AQ, IX, 'Error', UCX, 'Plot', 'yes', 'RemoveFlags', 'yes');

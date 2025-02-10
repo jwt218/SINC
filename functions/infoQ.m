@@ -10,16 +10,16 @@ function [IX] = infoQ(varargin)
 %   'RefgasRT'          - Retention times for reference gas injections. [Mx1 double], Default: []
 %   'Compounds'         - Primary list of compound numbers to analyze (e.g., [29 31] for C29 and C31). [Px1 double], Default: 16:30
 %   'AdditionalComp'    - Additional compounds to include in analysis. [Qx1 double], Default: []
-%   'KnownValues'  - Known isotope values for reference compounds.
-%                    - Can be a **vector** of known values (e.g., [-26.1, -31.8, -32.7]).
-%                    - Can be a **standard name** (e.g., 'A6', 'B4') to apply built-in values.
-%                    - Can be **'match'**, which automatically follows StandardID.
-%                    - If a **standard name** is selected, values are chosen based on 'Mode' (δ¹³C for 'C', δD for 'H').
-%                    Default: 'match'
-%   'KnownSD'      - Standard deviations of known isotope values.
-%                    - If 'KnownValues' is a **vector**, this must also be manually set as a vector.
-%                    - If 'KnownValues' is a **standard name** or 'match', KnownSD is assigned automatically.
-%                    Default: 'match'
+%   'KnownValues'       - Known isotope values for reference compounds.
+%                         - Can be a **vector** of known values (e.g., [-26.1, -31.8, -32.7]).
+%                         - Can be a **standard name** ('A6', 'B4', 'A7') to apply built-in values.
+%                         - Can be **'match'**, which automatically follows StandardID.
+%                         - If a standard name or 'match' is selected, values are chosen based on 'Mode' (δ¹³C for 'C', δD for 'H').
+%                         Default: 'match'
+%   'KnownSD'           - Standard deviations of known isotope values.
+%                         - If 'KnownValues' is a **vector**, this must also be manually set as a vector.
+%                         - If 'KnownValues' is a **standard name** or 'match', KnownSD is assigned automatically.
+%                         Default: []
 %   'PeakWindow'        - Detection window for sample peaks (measurement units). [1x1 double], Default: 5
 %   'RefgasWindow'      - Detection window for identifying reference gas peaks. [1x1 double], Default: 15
 %   'SampleMatchLen'    - Number of leading characters used to match sample replicates (e.g., 3 for IDs like SM1_a and SM1_b). [1x1 double], Default: 3
@@ -30,8 +30,14 @@ function [IX] = infoQ(varargin)
 %   'RemoveFlags'       - Whether to remove flagged samples exceeding uncertainty threshold ('yes' or 'no'). [char], Default: 'no'
 %   'Mode'              - Isotope analysis mode: 'C' for carbon, 'H' for hydrogen. [char], Default: 'C'
 %   'ReferenceShift'    - Uniform shift applied to all values to adjust reference gas offset. [1x1 double], Default: 0
-%   'DriftCorrection'   - Method used for drift correction: 'CS' (compound-specific) or 'Bulk'. [char], Default: 'CS'
-%   'ScaleCorrection'   - Scale correction method: 'Global' (all compounds) or '2PT' (two-point correction). [char], Default: 'Global'
+%   'DriftCorrection'   - Method used for drift correction: 
+%                         'CompoundSpecific' - Corrects drift separately for each compound.
+%                         'Global'      - Applies a single correction for all compounds.
+%                         Default: 'CompoundSpecific'
+%   'ScaleCorrection'   - Method used for scale correction:
+%                         'Regression' - Uses regression-based correction with all compounds.
+%                         'TwoPoint'   - Applies two-point correction using selected compounds.
+%                         Default: 'Regression'
 %   'Scale2PTComp'      - Compounds used for two-point scale correction. [2x1 double], Default: [23 29]
 %   'OutlierMethod'     - Method for outlier detection before applying corrections. Options:
 %                         'mad'    - Median Absolute Deviation (Default, robust)
@@ -40,9 +46,14 @@ function [IX] = infoQ(varargin)
 %                         'grubbs' - Grubbs' test (detects single extreme outliers in small datasets)
 %                         'none'   - No outlier removal
 %   'OutlierThreshold'  - Multiplier for thresholding outliers (applicable to MAD and Z-score methods). [1x1 double], Default: 5
+%   'LogParams'         - Option ('yes' or 'no') to store a log of input parameters to a
+%                         .txt file into a folder specified by 'LogDir'. [char]
+%                         Default: 'yes'
+%   'LogDir'            - Directory for log file. [char], Default: './output'
 %
 % Example Usage:
 %   IX = infoQ('SampleRT', [1 3 5 6], 'Compounds', [25 26 27 28], 'StandardID', 'A6', 'Mode', 'C', ...
+%              'DriftCorrection', 'GlobalDrift', 'ScaleCorrection', 'TwoPoint', ...
 %              'OutlierMethod', 'iqr', 'OutlierThreshold', 4);
 %
 % Outputs:
@@ -56,16 +67,14 @@ function [IX] = infoQ(varargin)
 %   - If 'KnownValues' is **'match'**, it automatically follows StandardID.
 %   - If 'KnownValues' is a **standard name**, KnownSD is also automatically assigned.
 %   - If 'KnownValues' is a **custom vector**, KnownSD must be manually provided.
-%   - Standard names available: 'A6', 'B4' (more can be added).
+%   - Standard names available: 'A6', 'B4', and 'A7'.
 %   - The **Mode ('C' or 'H')** determines whether **δ¹³C or δD** values are used.
-
 
 
 %% --- Define Default Values ---
 
 defSampleRT = [];
 defRefgasRT = [];
-defCompounds = 16:30;
 defAdditionalComp = [];
 defStandardID = "A6";
 defPeakWindow = 5;
@@ -78,8 +87,8 @@ defPolyOrder = 2;
 defRemoveFlags = 'no';
 defMode = 'C';
 defReferenceShift = 0;
-defDriftCorrection = 'CS';
-defScaleCorrection = 'Global';
+defDriftCorrection = 'CompoundSpecific';
+defScaleCorrection = 'Regression';
 defScale2PTComp = [23 29];
 defOutlierMethod = 'mad';
 defOutlierThreshold = 5;
@@ -87,31 +96,46 @@ defLogParams = 'yes';
 defLogDir = './output';
 
 % --- Predefined Known Values and SD for Standards ---
-predefinedStandards = struct();
+prestds = struct();
 
 % δ¹³C Values
-predefinedStandards.A6.C.Values = [-26.15 -31.88 -32.7 -31.99 -33.97 -28.83 -33.77 -33.37 -32.13 -28.46 -32.94 -30.49 -33.2 -29.1 -29.84];
-predefinedStandards.A6.C.SD = [0.02 0.02 0.01 0.01 0.02 0.02 0.02 0.03 0.02 0.02 0.01 0.01 0.01 0.01 0.01];
+prestds.A6.C.Values = [-26.15 -31.88 -32.7 -31.99 -33.97 -28.83 -33.77 -33.37 -32.13 -28.46 -32.94 -30.49 -33.2 -29.1 -29.84];
+prestds.A6.C.SD = [0.02 0.02 0.01 0.01 0.02 0.02 0.02 0.03 0.02 0.02 0.01 0.01 0.01 0.01 0.01];
+prestds.A6.C.Compounds = 16:30;
 
 % δD Values
-predefinedStandards.A6.H.Values = [-150.2 -145.8 -160.3 -155.9 -162.7 -148.1 -158.9 -153.4 -161.2 -147.6 -154.9 -157.3 -163.5 -151.4 -159.8];
-predefinedStandards.A6.H.SD = [2.0 2.1 1.8 2.0 2.2 2.3 1.9 2.4 2.1 2.0 1.7 2.0 1.9 2.1 1.8];
+prestds.A6.H.Values = [-9.1 -117.8 -52.0 -56.3 -89.7 -177.8 -81.3 -67.2 -29.7 -263.6 -45.9 -172.8 -36.8 -177.8 -213.6];
+prestds.A6.H.SD = [1.4 2.1 1.1 1.0 1.7 1.5 1.8 1.0 1.5 2.5 1.0 1.6 1.3 1.3 2.4];
+prestds.A6.H.Compounds = 16:30;
+
+% δ¹³C Values
+prestds.A7.C.Values = [-26.15 -31.87 -32.7 -31.99 -40.91 -28.83 -34.33 -33.37 -32.13 -28.46 -32.94 -30.49 -33.2 -29.1 -29.84];
+prestds.A7.C.SD =     [0.02 0.02 0.01 0.01 0.02 0.02 0.02 0.03 0.02 0.02 0.01 0.01 0.01 0.01 0.01];
+prestds.A7.C.Compounds = 16:30;
+
+% δD Values
+prestds.A7.H.Values = [-9.1 -117.8 -52.0 -56.3 -89.7 -177.8 -81.3 -67.2 -29.7 -263.6 -45.9 -172.8 -36.8 -177.8 -213.6];
+prestds.A7.H.SD = [1.4 2.1 1.1 1.0 1.7 1.5 1.8 1.0 1.5 2.5 1.0 1.6 1.3 1.3 2.4];
+prestds.A7.H.Compounds = 16:30;
 
 % δ¹³C for B4
-predefinedStandards.B4.C.Values = [-30.10 -33.05 -34.20 -32.80 -31.60 -28.70 -32.90 -30.50 -33.00 -29.80 -30.40 -32.00 -34.50 -29.90 -31.20];
-predefinedStandards.B4.C.SD = [0.02 0.02 0.01 0.01 0.02 0.02 0.02 0.03 0.02 0.02 0.01 0.01 0.01 0.01 0.01];
+prestds.B4.C.Values = [-26.15 -31.88 -31.11 -31.99 -33.97 -28.83 -32.87 -33.37 -33.34 -28.48 -32.94 -30.49 -32.21 -29.1 -33.14];
+prestds.B4.C.SD = [0.02 0.02 0.02 0.01 0.02 0.02 0.03 0.03 0.02 0.02 0.01 0.01 0.03 0.01 0.02];
+prestds.B4.C.Compounds = 16:30;
 
 % δD for B4
-predefinedStandards.B4.H.Values = [-145.2 -143.0 -159.2 -154.7 -160.5 -149.0 -155.5 -150.3 -162.1 -148.3 -151.9 -155.6 -164.0 -152.5 -157.9];
-predefinedStandards.B4.H.SD = [2.1 2.0 1.9 2.1 2.3 2.2 1.8 2.5 2.0 1.9 1.7 2.2 1.9 2.0 1.8];
+prestds.B4.H.Values = [-9.1 -117.8 -53.8 -56.3 -89.7 -177.8 -62.8 -67.2 -53.0 -254.1 -45.9 -172.8 -49.0 -177.8 -40.5];
+prestds.B4.H.SD = [1.4 2.1 2.1 1.0 1.7 1.5 1.6 1.0 1.6 1.5 1.0 1.6 1.5 1.3 0.7];
+prestds.B4.C.Compounds = 16:30;
 
 defKnownValues = 'match';  % Default to auto-match StandardID
-defKnownSD = 'match';      % Default to auto-match StandardID SD
+defKnownSD = [];      % Default to auto-match StandardID SD
+defCompounds = 16:30;
 
 expRemoveFlags = {'yes','no'};
 expMode = {'C','H'};
-expDriftCorrMethod = {'CS','Bulk'};
-expScaleCorrMethod = {'Global','Scale2PT'};
+expDriftCorrMethod = {'CompoundSpecific','Global'};
+expScaleCorrMethod = {'Regression','TwoPoint'};
 expOutlierMethod = {'mad', 'zscore', 'iqr', 'grubbs', 'none'};
 expLogParams = {'yes', 'no'};
 
@@ -174,7 +198,6 @@ end
 
 SampleRT = p.Results.SampleRT(:);
 RefgasRT = p.Results.RefgasRT(:);
-Compounds = p.Results.Compounds(:);
 AdditionalComp = p.Results.AdditionalComp(:);
 StandardID = p.Results.StandardID;
 PeakWindow = p.Results.PeakWindow(:);
@@ -196,24 +219,40 @@ LogParams = p.Results.LogParams;
 LogDir = p.Results.LogDir;
 
 %% --- Assign Known Values and SD Based on User Input ---
-if strcmp(p.Results.KnownValues, 'match')
+KnownValues = p.Results.KnownValues;
+KnownSD = p.Results.KnownSD;
+Compounds = p.Results.Compounds;
+if ischar(KnownValues) && strcmp(KnownValues, 'match')
     stdName = StandardID;
+    if isfield(prestds, stdName) && isfield(prestds.(stdName), Mode)
+        KnownValues = prestds.(stdName).(Mode).Values(:);
+        KnownSD = prestds.(stdName).(Mode).SD(:);
+        Compounds = prestds.(stdName).(Mode).Compounds(:);
+    else
+        error("Standard '%s' does not support Mode '%s'.", stdName, Mode);
+    end
+elseif ischar(KnownValues) && ismember(KnownValues,{'A6','B4','A7'})
+    stdName = KnownValues;
+    if isfield(prestds, stdName) && isfield(prestds.(stdName), Mode)
+        KnownValues = prestds.(stdName).(Mode).Values(:);
+        KnownSD = prestds.(stdName).(Mode).SD(:);
+        Compounds = prestds.(stdName).(Mode).Compounds(:);
+    else
+        error("Standard '%s' does not support Mode '%s'.", stdName, Mode);
+    end
+elseif isnumeric(KnownValues) && isnumeric(KnownSD)
+    KnownValues = KnownValues(:);
+    KnownSD = KnownSD(:);
+    Compounds = Compounds(:);
 else
-    stdName = p.Results.KnownValues;
-end
-
-if isfield(predefinedStandards, stdName) && isfield(predefinedStandards.(stdName), Mode)
-    KnownValues = predefinedStandards.(stdName).(Mode).Values;
-    KnownSD = predefinedStandards.(stdName).(Mode).SD;
-else
-    error("Standard '%s' does not support Mode '%s'.", stdName, Mode);
+    error("Invalid input: Valid options for 'KnownValues' are 'match', 'A6', 'B4', 'A7', or a numeric vector containing the known values of the reference standard.");
 end
 
 
 msg1 = sprintf("'SampleRT' length (%d) must match 'Compounds' + 'AdditionalComp' length (%d).", length(SampleRT), length(Compounds) + length(AdditionalComp));
 assert(length(SampleRT) == length(Compounds) + length(AdditionalComp), msg1);
 
-msg2 = sprintf("'Report' length (%d) must match 'ReportSD' length (%d).", length(KnownValues), length(KnownSD));
+msg2 = sprintf("'KnownValues' length (%d) must match 'KnownSD' length (%d).", length(KnownValues), length(KnownSD));
 assert(length(KnownValues) == length(KnownSD), msg2);
 
 %% --- Construct Output Struct ---
@@ -245,7 +284,7 @@ IX.LogDir = LogDir;
 
 [IX.Function] = deal('infoQ');
 
-if strcmp(p.Results.LogParams, 'yes')
+if strcmp(LogParams, 'yes')
     logQ(IX, LogDir);
 end
 

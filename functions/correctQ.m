@@ -4,19 +4,13 @@ function [QX] = correctQ(AX,IX,varargin)
 % This function performs compound-specific or bulk drift corrections, applies 
 % size corrections, and normalizes scale using either a global regression or 
 % two-point method. Additionally, outlier removal can be applied before 
-% corrections, with multiple detection methods available.
+% corrections, with multiple detection methods available, as set in infoQ.
 %
 % Inputs:
 %   AX              - Output from findQ [struct]
 %   IX              - Output from infoQ [struct]
-%                     Defaults will be used for StandardID, PolyOrder, and Mode if not specified.
+%                     Defaults will be used for StandardID, PolyOrder, Mode, and OutlierMethod if not specified.
 %   Plot            - Option to generate output figures into a directory ('yes' or 'no')
-%   OutlierMethod   - Method for outlier detection before applying corrections. Options:
-%                     'mad'    - Median Absolute Deviation (Default, robust)
-%                     'zscore' - Z-score (removes values >3 standard deviations)
-%                     'iqr'    - Interquartile Range (removes values outside 1.5×IQR range)
-%                     'grubbs' - Grubbs' test (detects single extreme outliers in small datasets)
-%                     'none'   - No outlier removal
 %
 % Outputs:
 %   QX              - Struct with fields:
@@ -27,18 +21,25 @@ function [QX] = correctQ(AX,IX,varargin)
 %                     QX.FileName       - Processed file name
 %
 % Example Usage:
-%   QX = correctQ(AX, IX, 'Plot', 'yes', 'OutlierMethod', 'iqr');
+%   QX = correctQ(AX, IX, 'Plot', 'yes');
 %
-%   % Runs correction with Interquartile Range (IQR) outlier detection.
+%   % Runs correction using the outlier method specified in infoQ.
 %
-%   QX = correctQ(AX, IX, 'Plot', 'no', 'OutlierMethod', 'none');
+%   QX = correctQ(AX, IX, 'Plot', 'no');
 %
-%   % Runs correction without removing outliers.
+%   % Runs correction without generating plots.
 %
 % Notes:
+%   - Outlier detection method is now set in **infoQ**, not correctQ.
+%   - Available outlier detection methods (set in infoQ):
+%       - 'mad'    - Median Absolute Deviation (Default, robust)
+%       - 'zscore' - Z-score (removes values >3 standard deviations)
+%       - 'iqr'    - Interquartile Range (removes values outside 1.5×IQR range)
+%       - 'grubbs' - Grubbs' test (detects single extreme outliers in small datasets)
+%       - 'none'   - No outlier removal
 %   - Outlier detection is performed **before** applying drift, size, and scale corrections.
 %   - The default outlier detection method is 'mad' (Median Absolute Deviation).
-%   - To disable outlier removal, set 'OutlierMethod' to 'none' using infoQ.
+%   - To disable outlier removal, set 'OutlierMethod', 'none' in infoQ.
 
 defPlot = 'yes';
 
@@ -163,7 +164,7 @@ for j = 1:length(GX)
     end
 
     cuniq = unique(cstd); cuniqs = unique(csmp);
-    if strcmp(dcm,'CS')
+    if strcmp(dcm,'CompoundSpecific')
         % drift correction (Component-specific)
         polyn = pln;
         dstd_drift = zeros([length(dstd) 1]);
@@ -209,7 +210,7 @@ for j = 1:length(GX)
             end
         end
     end
-    if strcmp(dcm,'Bulk')
+    if strcmp(dcm,'Global')
         [pdi,~] = polyfit(astd,diffstd,pln);
         dci = polyval(pdi,astd);
         ddi = dstd - dci;
@@ -234,7 +235,7 @@ for j = 1:length(GX)
     size_std = std(res_corr_size);
 
     % scale correction (expansion)
-    if strcmp(scm,'Global')
+    if strcmp(scm,'Regression')
         valid_std = ~any(isnan([dstd_drift, rstd, pstd]), 2); % Ensure valid data for standards
         dstd_valid = dstd_drift(valid_std);
         rstd_valid = rstd(valid_std);
@@ -249,7 +250,7 @@ for j = 1:length(GX)
         res_corr_scl = dsmp_scale - dsmp_size;
         scale_std = std(res_corr_scl);
     end
-    if strcmp(scm,'Scale2PTComp')
+    if strcmp(scm,'TwoPoint')
         nct1 = scl2(1); nct2 = scl2(2);
         dstd_range = abs(mean(dstd(cstd == nct2)) - mean(dstd(cstd == nct1)));
         rep_range = abs(mean(rstd(cstd == nct2)) - mean(rstd(cstd == nct1)));

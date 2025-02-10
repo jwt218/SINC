@@ -1,9 +1,9 @@
 function [PX] = processQ(fnames,IX,varargin)
 % processQ - Executes the full IsoNQ data processing workflow.
 %
-% This function performs parsing, drift correction, size correction, scale normalization,
-% uncertainty propagation, and weighted averaging to generate final processed isotope data.
-% Optionally, it can generate plots and save output files.
+% This function performs parsing, outlier removal, drift correction, size correction, 
+% scale normalization, uncertainty propagation, and weighted averaging to generate final 
+% processed isotope data. Optionally, it can generate plots and log processing parameters.
 %
 % Inputs:
 %   fnames      - List of file names containing raw Qtegra CSV data. [Fx1 string array]
@@ -14,16 +14,18 @@ function [PX] = processQ(fnames,IX,varargin)
 %
 % Outputs:
 %   PX          - Struct containing all processed data, metadata, and results. [struct]
-%                 Includes raw and corrected isotope values, propagated uncertainties, and final weighted means.
-%                 See PX.Descriptions for details on individual fields.
+%                 Includes raw and corrected isotope values, propagated uncertainties, 
+%                 and final weighted means. See PX.Descriptions for details on individual fields.
 %
 % Notes:
 % - This function applies all data corrections sequentially, including:
 %   (1) Parsing input files and extracting sample/reference gas peaks.
-%   (2) Performing compound-specific drift correction.
-%   (3) Applying size and scale corrections.
-%   (4) Calculating uncertainty propagation from sample and reference gas.
-%   (5) Generating final weighted means for selected compounds.
+%   (2) Performing outlier analysis **(set in infoQ; options: 'mad', 'zscore', 'iqr', 'grubbs', 'none')**.
+%   (3) Applying compound-specific or global drift correction **(set in infoQ; options: 'CompoundSpecific', 'GlobalDrift')**.
+%   (4) Applying size correction.
+%   (5) Applying regression-based or two-point scale correction **(set in infoQ; options: 'Regression', 'TwoPoint')**.
+%   (6) Calculating uncertainty propagation from sample and reference gas.
+%   (7) Generating final weighted means for selected compounds.
 % - All intermediate outputs are stored in PX and can be accessed individually if needed.
 % - If 'Plot' is set to 'yes', figures will be generated and saved into an output directory called 'fig'.
 %
@@ -34,10 +36,9 @@ function [PX] = processQ(fnames,IX,varargin)
 %
 % See Also: infoQ, parseQ, correctQ, errorQ, weightQ
 
-
 tic
 
-defPlot = 'yes';
+defPlot = 'no';
 
 expPlot = {'yes','no'};
 
