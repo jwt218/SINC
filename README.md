@@ -12,6 +12,7 @@ For a step-by-step tutorial, see:
 IsoNQ implements several improvements over traditional CSIA-IRMS processing workflows. The major components include:
 
 1️⃣ Drift Correction
+
 Two options available:
 - Compound-Specific Drift Correction ('CompoundSpecific') (Default)
 - Global Drift Correction ('GlobalDrift')
@@ -19,6 +20,7 @@ Two options available:
 Why It Matters: Traditional drift correction assumes all compounds drift uniformly, but in reality, different analytes can exhibit different drift patterns. IsoNQ allows individualized drift corrections per compound, reducing systematic bias.
 
 2️⃣ Scale Correction
+
 Two options available:
 - Regression-Based Scale Correction ('Regression') (Default)
 - Two-Point Scale Correction ('TwoPoint')
@@ -26,6 +28,7 @@ Two options available:
 Why It Matters: Traditional two-point scaling methods can introduce instability when reference standards exhibit high variability. IsoNQ’s regression-based approach uses all available standard compounds, ensuring a more stable and accurate correction.
 
 3️⃣ Outlier Detection & Handling
+
 Configurable methods for outlier removal before correction:
 - 'mad' (Median Absolute Deviation, default)
 - 'zscore' (Removes values >3 standard deviations)
@@ -36,6 +39,7 @@ Configurable methods for outlier removal before correction:
 Why It Matters: Unfiltered extreme values can distort correction factors. IsoNQ allows for flexible outlier detection methods to improve data quality.
 
 4️⃣ Uncertainty Propagation
+
 IsoNQ propagates uncertainties from multiple sources:
 Instrumental precision (repeatability)
 - Drift correction uncertainty
@@ -47,6 +51,7 @@ Instrumental precision (repeatability)
 Why It Matters: Many CSIA-IRMS studies underestimate uncertainty by considering only instrumental error. IsoNQ integrates correction-based errors, producing more accurate confidence estimates.
 
 5️⃣ Parameter Logging for Reproducibility
+
 When enabled ('LogParams', 'yes'), IsoNQ saves all input parameters to a timestamped log file (output/logs/).
 
 Why It Matters: Ensures full reproducibility of processing settings, useful for method comparisons, debugging, and publication records.
