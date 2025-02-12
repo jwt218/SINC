@@ -1,7 +1,7 @@
 ## IsoNQ: A Standardized Workflow for CSIA-IRMS Processing
 IsoNQ is an open-source MATLAB package for processing compound-specific isotope analysis (CSIA) data from GC-IRMS. It provides a standardized workflow that includes drift correction, size normalization, scale correction, and uncertainty propagation, ensuring reproducibility and comparability across datasets.
 
-This repository contains the MATLAB functions, tutorial, and example data used to apply IsoNQ to n-alkane isotope measurements. The approach behind IsoNQ is described in detail in:
+This repository contains the MATLAB functions, tutorial, and example data used to apply IsoNQ to _n_-alkane isotope measurements. The approach behind IsoNQ is described in detail in:
 
 📄 [Paper in review]
 
