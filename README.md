@@ -12,14 +12,14 @@ For a step-by-step tutorial, see:
 IsoNQ implements several improvements over traditional CSIA-IRMS processing workflows. The major components include:
 
 1️⃣ Drift Correction
-- Two options available:
+Two options available:
 - Compound-Specific Drift Correction ('CompoundSpecific') (Default)
 - Global Drift Correction ('GlobalDrift')
 
 Why It Matters: Traditional drift correction assumes all compounds drift uniformly, but in reality, different analytes can exhibit different drift patterns. IsoNQ allows individualized drift corrections per compound, reducing systematic bias.
 
 2️⃣ Scale Correction
-- Two options available:
+Two options available:
 - Regression-Based Scale Correction ('Regression') (Default)
 - Two-Point Scale Correction ('TwoPoint')
 
