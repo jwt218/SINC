@@ -56,7 +56,7 @@ When enabled ('LogParams', 'yes'), IsoNQ saves all input parameters to a timesta
 
 Why It Matters: Ensures full reproducibility of processing settings, useful for method comparisons, debugging, and publication records.
 
-📖 How to Get Started
+## How to Get Started
 
 1️⃣ Download IsoNQ
 Clone this repository or download the package manually.
