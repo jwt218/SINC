@@ -138,8 +138,8 @@ for j = 1:length(fnames)
 
         En = table(id1,sli,rts,d13,pkr,pkh,pnn,bck);
         En.Properties.VariableNames = vns;
-        E(ki(1:l3),2:cnum) = array2table([sli rts d13 pkr pkh pnn bck]);
-        E{ki(1:l3),1} = id1;
+        E(ki(1:size(En,1)),2:cnum) = array2table([sli rts d13 pkr pkh pnn bck]);
+        E{ki(1:size(En,1)),1} = id1;
     end
 
     E(E.(3) == 9999,:) = [];

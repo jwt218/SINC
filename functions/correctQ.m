@@ -225,14 +225,14 @@ for j = 1:length(GX)
     res_corr_dstd = dstd_drift - dstd;
     res_iub1 = dstd_drift - rstd;
     resnan = ~isnan(res_iub1);
-    drift_std = std(res_corr_dstd);
+    drift_std = std(res_corr_dstd(~isnan(res_corr_dstd)));
 
     % size correction
     [ps,~] = polyfit(zstd(resnan),res_iub1(resnan),1);
     zidf = polyval(ps,zsmp);
     dsmp_size = dsmp_drift - zidf;
     res_corr_size = dsmp_size - dsmp_drift;
-    size_std = std(res_corr_size);
+    size_std = std(res_corr_size(~isnan(res_corr_size)));
 
     % scale correction (expansion)
     if strcmp(scm,'Regression')
@@ -248,7 +248,6 @@ for j = 1:length(GX)
         offw = fitpw(2); % Offset (intercept)
         dsmp_scale = (dsmp_size - offw) ./ rr;
         res_corr_scl = dsmp_scale - dsmp_size;
-        scale_std = std(res_corr_scl);
     end
     if strcmp(scm,'TwoPoint')
         nct1 = scl2(1); nct2 = scl2(2);
@@ -262,8 +261,8 @@ for j = 1:length(GX)
         ds = mean([ds1 ds2]);
         dsmp_scale = dsmp_r - ds;
         res_corr_scl = dsmp_scale - dsmp_size;
-        scale_std = std(res_corr_scl);
     end
+    scale_std = std(res_corr_scl(~isnan(res_corr_scl)));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -341,7 +340,7 @@ if strcmp(Plot,'yes')
     avgpa = zeros(size(cuniqs));
     for i = 1:numel(cuniqs)
         cl = cuniqs(i);
-        avgpa(i) = mean(Qsmp.PeakA(Qsmp.Component == cl));
+        avgpa(i) = mean(Qsmp.PeakArea(Qsmp.Component == cl));
     end
     bar(cuniqs,avgpa,'FaceColor','#022688');
     xlabel('Compound');
@@ -351,10 +350,10 @@ if strcmp(Plot,'yes')
 
 
     f = figure('Visible','off','Position',[210 55 970 777]);clf
-    plot(Qstd.d_raw,Qstd.reported_IUB,'.','Color','#022688','MarkerSize',12);
+    plot(Qstd.RawDeltaValue,Qstd.KnownValue,'.','Color','#022688','MarkerSize',12);
     xlabel('\delta (Measured)');
     ylabel('\delta (Known)');
-    text(0.05,0.95,sprintf('Outliers Removed: %d',length(outval2)),'Units','normalized');
+    text(0.05,0.95,sprintf('Outliers Removed: %d',length(outval)),'Units','normalized');
     saveas(f,sprintf('./%s/%s/Offset_%s.png',fold,Mode,Mode))
 
     set(0, 'DefaultFigureVisible', 'on');

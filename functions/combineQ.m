@@ -81,6 +81,23 @@ for i = 1:length(dqa)
     end
 end
 
+dsmp = Q.CorrectedDeltaValue;
+otmtr = 5;
+%%% Remove Outliers for Sample Data (if enabled)
+    % Compute MAD-based threshold for sample data
+    med_val = median(dsmp, 'omitnan');
+    mad_val = median(abs(dsmp - med_val), 'omitnan');
+    madthr = otmtr;
+
+    % Identify outliers
+    outliers = abs(dsmp - med_val) > madthr * mad_val;
+
+    % Remove outliers (set to NaN)
+    dsmp(outliers) = NaN;
+
+Q.CorrectedDeltaValue = dsmp;
+
+
 Q.SN = anys; Qs.SN = anyss;
 Q.SEQ = qanys; Qs.SEQ = qanyss;
 CX.Sample = Q;
@@ -101,38 +118,38 @@ if strcmp(Plot,'yes')
     set(0, 'DefaultFigureVisible', 'off');
 
     clf; f = figure('Visible','off','Position',[1 49 1920 955]);
-    c = Q.component; ms = 100; cn = 29; comp = sort(unique(c));
+    c = Q.Component; ms = 100; cn = 29; comp = sort(unique(c));
     colormap(lines(3)); cf = find(c == cn);
     xv = xline(unique(anys),'--','Alpha',0.1); hold on
-    s = scatter(anys,Q.d_final,ms,c,'filled','s');
+    s = scatter(anys,Q.CorrectedDeltaValue,ms,c,'filled','s');
     cb = colorbar; title(cb,'nC #'); cb.Ticks = comp(:);
-    p = plot(anys(cf),Q.d_final(cf),'ok','MarkerSize',ms/8); hold off
+    p = plot(anys(cf),Q.CorrectedDeltaValue(cf),'ok','MarkerSize',ms/8); hold off
     xlim([0 max(anys)+1])
     xlabel('Sample ID'); ylabel('\delta (‰; Corrected Values)')
     xticks(unique(anys,'stable'));
-    xticklabels(unique(Q.Identifier1,'stable'));
+    xticklabels(unique(Q.Identifier,'stable'));
     set(gca,'TickLabelInterpreter','none')
     legend(p,sprintf('nC%d, %d analyses',cn,length(strun)),'box','off','Location','northoutside')
     saveas(f,sprintf('./%s/%s/AllDelta_%s.png',fold,Mode,Mode))
 
     clf; f = figure('Visible','off','Position',[1 49 1920 955]);
-    c = Q.component; ms = 60; cn = 29; comp = sort(unique(c));
+    c = Q.Component; ms = 60; cn = 29; comp = sort(unique(c));
     colormap(lines(3)); cf = find(c == cn);
-    res = Q.("d_raw") - Q.d_final;
+    res = Q.RawDeltaValue - Q.CorrectedDeltaValue;
     xv = xline(unique(anys),'--','Alpha',0.1); hold on
     s = scatter(anys,res,ms,c,'filled','o');
     cb = colorbar; title(cb,'nC #'); cb.Ticks = comp(:); hold off
     xlim([0 max(anys)+1])
     xlabel('Sample ID'); ylabel('\delta (‰; Correction Residual)')
     xticks(unique(anys,'stable'));
-    xticklabels(unique(Q.Identifier1,'stable'));
+    xticklabels(unique(Q.Identifier,'stable'));
     set(gca,'TickLabelInterpreter','none')
     saveas(f,sprintf('./%s/%s/SampleResidual_%s.png',fold,Mode,Mode))
 
     clf; f = figure('Visible','off','Position',[1 49 1920 955]);
-    c = Q.component; ms = 60; cn = 29; comp = sort(unique(c));
+    c = Q.Component; ms = 60; cn = 29; comp = sort(unique(c));
     colormap(lines(3)); cf = find(c == cn);
-    res = Q.("d_raw") - Q.d_final;
+    res = Q.RawDeltaValue - Q.CorrectedDeltaValue;
     xv = xline(unique(qanys),'--','Alpha',0.1); hold on
     s = scatter(qanys,res,ms,c,'filled','o');
     cb = colorbar; title(cb,'nC #'); cb.Ticks = comp(:); hold off
@@ -144,9 +161,9 @@ if strcmp(Plot,'yes')
     saveas(f,sprintf('./%s/%s/SequenceResidual_%s.png',fold,Mode,Mode))
 
     clf; f = figure('Visible','off','Position',[30 150 1070 650]);
-    c = Qs.component; ms = 60; cn = 29; comp = sort(unique(c));
+    c = Qs.Component; ms = 60; cn = 29; comp = sort(unique(c));
     colormap(lines(3)); cf = find(c == cn);
-    peaka = Qs.Amplitude; off = Qs.reported_IUB - Qs.d_raw;
+    peaka = Qs.PeakAmplitude; off = Qs.KnownValue - Qs.RawDeltaValue;
     s = scatter(peaka,off,ms,c,'filled','s');
     cb = colorbar; title(cb,'nC #'); cb.Ticks = comp(:);
     xlabel('Amplitude'); ylabel('\delta (‰; Against Reference Material)')
@@ -154,9 +171,9 @@ if strcmp(Plot,'yes')
     saveas(f,sprintf('./%s/%s/StandardAmp_%s.png',fold,Mode,Mode))
 
     clf; f = figure('Visible','off','Position',[30 150 1070 650]);
-    c = Q.component; ms = 60; cn = 29; comp = sort(unique(c));
+    c = Q.Component; ms = 60; cn = 29; comp = sort(unique(c));
     colormap(lines(3)); cf = find(c == cn);
-    peaka = Q.Amplitude; off = Q.d_final - Q.reported_IUB;
+    peaka = Q.PeakAmplitude; off = Q.CorrectedDeltaValue - Q.KnownValue;
     s = scatter(peaka,off,ms,c,'filled','s');
     cb = colorbar; title(cb,'nC #'); cb.Ticks = comp(:);
     xlabel('Amplitude'); ylabel('\delta (‰; Against Reference Material)')

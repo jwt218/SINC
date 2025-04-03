@@ -35,13 +35,14 @@ CX = p.Results.CX;
 IX = p.Results.IX;
 Plot = char(p.Results.Plot);
 Mode = IX.Mode;
+otm = IX.OutlierMethod;
 
 AQ = struct();
 
 tid = IX.SampleMatchLen;
 cmp = [IX.Compounds;IX.AdditionalComp];
 if isempty(IX.AgeFile)
-    uaf = char(unique(table2array(CX.Sample(:,'Identifier1'))));
+    uaf = char(unique(table2array(CX.Sample(:,'Identifier'))));
     uaf2 = unique(string(uaf(:,1:tid)));
     a = table(uaf2, (1:length(uaf2))');
 else
@@ -111,6 +112,52 @@ dri = NaN(dz); sri = NaN(dz); pri = NaN(dz);
 
 for i = 1:length(tia); dri(tia(i),:) = dxi(i,:); end
 dci = [repmat(9999, dz(1), 1) repmat(9999, dz(1), 1) dri];
+for i = 1:size(dci,2)
+    dsmp = dci(:,i);
+    otmtr = 20;
+    %%% Remove Outliers for Sample Data (if enabled)
+    if strcmp(otm, 'mad')
+        % Compute MAD-based threshold for sample data
+        med_val = median(dsmp, 'omitnan');
+        mad_val = median(abs(dsmp - med_val), 'omitnan');
+        madthr = otmtr;
+
+        % Identify outliers
+        outliers = abs(dsmp - med_val) > madthr * mad_val;
+
+        % Remove outliers (set to NaN)
+        dsmp(outliers) = NaN;
+elseif strcmp(otm, 'zscore')
+        z_scores = (dsmp - mean(dsmp, 'omitnan')) ./ std(dsmp, 'omitnan');
+        z_thresh = otmtr; % 3 standard deviations
+        outliers = abs(z_scores) > z_thresh;
+        dsmp(outliers) = NaN;
+   elseif strcmp(otm, 'iqr')
+        Q1 = prctile(dsmp, 25); % First quartile (25th percentile)
+        Q3 = prctile(dsmp, 75); % Third quartile (75th percentile)
+        IQR_val = Q3 - Q1;
+        lower_bound = Q1 - 1.5 * IQR_val;
+        upper_bound = Q3 + 1.5 * IQR_val;
+
+        outliers = (dsmp < lower_bound) | (dsmp > upper_bound);
+        dsmp(outliers) = NaN;
+    elseif strcmp(otm, 'grubbs')
+        alpha = 0.05; % Significance level
+        n = length(dsmp);
+        t_crit = tinv(1 - alpha / (2 * n), n - 2); % Critical t-value
+        G_thresh = ((n - 1) / sqrt(n)) * sqrt(t_crit^2 / (n - 2 + t_crit^2));
+
+        mean_dsmp = mean(dsmp, 'omitnan');
+        std_dsmp = std(dsmp, 'omitnan');
+        G_scores = abs(dsmp - mean_dsmp) ./ std_dsmp;
+        outliers = G_scores > G_thresh;
+
+        dsmp(outliers) = NaN;
+    elseif strcmp(otm, 'none')
+        % No outliers removed
+    end
+    dci(:,i) = dsmp;
+end
 D = array2table(dci);
 D.Properties.VariableNames = jri;
 D.ID = alab; D.Age = age;
