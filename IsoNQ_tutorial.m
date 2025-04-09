@@ -127,7 +127,7 @@ p = 'no'; r = 'yes';
 
 writeQ(PX);
 
-writeQ(PX, 'OutputDir', './output', 'Timestamp', false);
+writeQ(PX, 'OutputDir', 'Format', 'xlsx', 'Timestamp', false);
 
 
 
@@ -140,6 +140,26 @@ writeQ(PX, 'OutputDir', './output', 'Timestamp', false);
 
 [SX] = standardsQ(IX,EX1,EX2,'Plot','yes');
 
+
+%% MERGE MULTIPLE ISONQ DATASETS
+% Combine multiple processQ output structs (PX) into one struct. This is
+% useful if different standards were analyzed across multiple sessions for
+% one profile or group of samples.
+
+PX1 = processQ(fnames(1), IX, 'Plot', 'no');
+PX2 = processQ(fnames(2), IX, 'Plot', 'no');
+[MX] = mergeQ(PX1, PX2);
+
+
+%% SORTING DATA WITHIN THE MERGED STRUCT
+% To sort tables in the MX struct, try sortrows(...). For example, to sort
+% the replicate mean delta values by sample ID, use:
+
+delta_sorted = sortrows(MX.MeanDelta, 'ID');
+
+% Sorting options depend on what column structure is in each table.
+% Check available columns with:
+disp(MX.MeanDelta.Properties.VariableNames);
 
 
 %% TROUBLESHOOTING
