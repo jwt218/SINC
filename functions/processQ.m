@@ -86,6 +86,8 @@ PX.FlaggedRemovedDelta = UCX.FlaggedRemovedDelta;
 PX.FlaggedRemovedUncertainty = UCX.FlaggedRemovedUncertainty;
 PX.FlaggedSamples = UCX.FlaggedSamples;
 PX.Covariance = UCX.Covariance;
+PX.Standards = CX.Standard;
+PX.Samples = CX.Sample;
 PX.FileName = fnames;
 
 vn = {'Field','Description'};
@@ -101,6 +103,8 @@ Description = string({"Mean isotope values of measured samples for each compound
     "Table of total uncertainty values with flagged samples removed.",...
     "List of flagged samples, including the number of flagged compounds and chain lengths.",...
     "Covariance of reference gas and sample uncertainties.",...
+    "Table of isotope values and metadata for lab standards.",...
+    "Table of isotope values and metadata for samples.",...
     "File names of processed Qtegra data files."})';
 DT = array2table(zeros(length(Field),2));
 DT.Properties.VariableNames = vn;
