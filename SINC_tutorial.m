@@ -32,7 +32,7 @@
 % Example: >> help processQ
 
 % The file paths in this tutorial assume that you are running these operations
-% from the IsoNQ parent directory. If you are working from a different location,
+% from the SINC parent directory. If you are working from a different location,
 % update the file paths for 'fnames' and any output directories accordingly.
 % Ensure that your MATLAB working directory is set correctly before running.
 
@@ -47,7 +47,7 @@ fnames = ["./data/CSIA_A6_B4_test.csv", ...
 
 
 %% INPUT PARAMETERS (INFOQ OPTIONS)
-% Define key parameters for IsoNQ processing. These include retention times,
+% Define key parameters for SINC processing. These include retention times,
 % compound selection, reference standards, uncertainty thresholds, and more.
 % Modify these parameters as needed for your dataset.
 
@@ -122,7 +122,7 @@ p = 'no'; r = 'yes';
 
 
 %% WRITE OUTPUT TO FILE
-% Write data stored in any IsoNQ output struct to a file of a specified
+% Write data stored in any SINC output struct to a file of a specified
 % directory and format.
 
 writeQ(PX);
@@ -141,7 +141,7 @@ writeQ(PX, 'OutputDir', 'Format', 'xlsx', 'Timestamp', false);
 [SX] = standardsQ(IX,EX1,EX2,'Plot','yes');
 
 
-%% MERGE MULTIPLE ISONQ DATASETS
+%% MERGE MULTIPLE SINC DATASETS
 % Combine multiple processQ output structs (PX) into one struct. This is
 % useful if different standards were analyzed across multiple sessions for
 % one profile or group of samples.
