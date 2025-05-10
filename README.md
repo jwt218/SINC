@@ -2,7 +2,7 @@
 
 SINC is an open-source MATLAB package for processing compound-specific isotope analysis (CSIA) data from GC-IRMS. It provides a standardized workflow that includes drift correction, size normalization, scale correction, and uncertainty propagation, ensuring reproducibility and comparability across datasets.
 
-This repository contains the MATLAB functions, tutorial, and example data used to apply IsoNQ to _n_-alkane isotope measurements. The approach behind IsoNQ is described in detail in:
+This repository contains the MATLAB functions, tutorial, and example data used to apply SINC to _n_-alkane isotope measurements. The approach behind SINC is described in detail in:
 
 📄 [Paper in review]
 
@@ -37,11 +37,11 @@ Configurable methods for outlier removal before correction:
 - 'grubbs' (Detects single extreme outliers)
 - 'none' (No outlier removal)
 
-Why It Matters: Unfiltered extreme values can distort correction factors. IsoNQ allows for flexible outlier detection methods to improve data quality.
+Why It Matters: Unfiltered extreme values can distort correction factors. SINC allows for flexible outlier detection methods to improve data quality.
 
 4️⃣ Uncertainty Propagation
 
-IsoNQ propagates uncertainties from multiple sources:
+SINC propagates uncertainties from multiple sources:
 Instrumental precision (repeatability)
 - Drift correction uncertainty
 - Size correction uncertainty
@@ -49,11 +49,11 @@ Instrumental precision (repeatability)
 - Sample measurement uncertainty
 - Reference gas uncertainty
   
-Why It Matters: Many CSIA-IRMS studies underestimate uncertainty by considering only instrumental error. IsoNQ integrates correction-based errors, producing more accurate confidence estimates.
+Why It Matters: Many CSIA-IRMS studies underestimate uncertainty by considering only instrumental error. SINC integrates correction-based errors, producing more accurate confidence estimates.
 
 5️⃣ Parameter Logging for Reproducibility
 
-When enabled ('LogParams', 'yes'), IsoNQ saves all input parameters to a timestamped log file (output/logs/).
+When enabled ('LogParams', 'yes'), SINC saves all input parameters to a timestamped log file (output/logs/).
 
 Why It Matters: Ensures full reproducibility of processing settings, useful for method comparisons, debugging, and publication records.
 
