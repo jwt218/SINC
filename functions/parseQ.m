@@ -1,6 +1,6 @@
 function [EX] = parseQ(FileNames,varargin)
 % parseQ - Reformats Qtegra .csv export file to improve readability and
-%          apply proper format for other IsoNQ functions.
+%          apply proper format for other SINC functions.
 % Inputs:
 %   FileNames       - List of file paths to be parsed [Fx1 string array]
 %   Mode            - Specify parsing for d13C or dD data ('C' or 'H') [char]

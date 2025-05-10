@@ -1,5 +1,5 @@
 function writeQ(DataStruct, varargin)
-% writeQ - Saves any struct from IsoNQ as CSV, XLSX, MAT, or TXT files in a named subdirectory.
+% writeQ - Saves any struct from SINC as CSV, XLSX, MAT, or TXT files in a named subdirectory.
 %
 % Inputs:
 %   DataStruct - Struct containing data to be saved. [struct]

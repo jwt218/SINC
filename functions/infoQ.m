@@ -1,7 +1,7 @@
 function [IX] = infoQ(varargin)
-% infoQ - Organizes input parameters into a structured format for IsoNQ processing.
+% infoQ - Organizes input parameters into a structured format for SINC processing.
 %
-% This function initializes and validates user-defined parameters for the IsoNQ processing pipeline.
+% This function initializes and validates user-defined parameters for the SINC processing pipeline.
 % Parameters include retention times, compound selection, drift/scale correction methods, uncertainty thresholds,
 % and outlier detection settings.
 %

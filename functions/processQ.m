@@ -1,5 +1,5 @@
 function [PX] = processQ(fnames,IX,varargin)
-% processQ - Executes the full IsoNQ data processing workflow.
+% processQ - Executes the full SINC data processing workflow.
 %
 % This function performs parsing, outlier removal, drift correction, size correction, 
 % scale normalization, uncertainty propagation, and weighted averaging to generate final 
