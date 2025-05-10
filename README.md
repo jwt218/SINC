@@ -1,16 +1,16 @@
-## SINC: Standardization and Isotope Normalization for CSIA: with integrated correction and uncertainty quantification
+## SINC: Standardization and Isotope Normalization for CSIA (with integrated correction and uncertainty quantification)
 
-IsoNQ is an open-source MATLAB package for processing compound-specific isotope analysis (CSIA) data from GC-IRMS. It provides a standardized workflow that includes drift correction, size normalization, scale correction, and uncertainty propagation, ensuring reproducibility and comparability across datasets.
+SINC is an open-source MATLAB package for processing compound-specific isotope analysis (CSIA) data from GC-IRMS. It provides a standardized workflow that includes drift correction, size normalization, scale correction, and uncertainty propagation, ensuring reproducibility and comparability across datasets.
 
 This repository contains the MATLAB functions, tutorial, and example data used to apply IsoNQ to _n_-alkane isotope measurements. The approach behind IsoNQ is described in detail in:
 
 📄 [Paper in review]
 
 For a step-by-step tutorial, see:
-📖 IsoNQ_tutorial.m
+📖 SINC_tutorial.m
 
 ## Key Features & Methodology
-IsoNQ implements several improvements over traditional CSIA-IRMS processing workflows. The major components include:
+SINC implements several improvements over traditional CSIA-IRMS processing workflows. The major components include:
 
 1️⃣ Drift Correction
 
@@ -18,7 +18,7 @@ Two options available:
 - Compound-Specific Drift Correction ('CompoundSpecific') (Default)
 - Global Drift Correction ('GlobalDrift')
 
-Why It Matters: Traditional drift correction assumes all compounds drift uniformly, but in reality, different analytes can exhibit different drift patterns. IsoNQ allows individualized drift corrections per compound, reducing systematic bias.
+Why It Matters: Traditional drift correction assumes all compounds drift uniformly, but in reality, different analytes can exhibit different drift patterns. SINC allows individualized drift corrections per compound, reducing systematic bias.
 
 2️⃣ Scale Correction
 
@@ -26,7 +26,7 @@ Two options available:
 - Regression-Based Scale Correction ('Regression') (Default)
 - Two-Point Scale Correction ('TwoPoint')
 
-Why It Matters: Traditional two-point scaling methods can introduce instability when reference standards exhibit high variability. IsoNQ’s regression-based approach uses all available standard compounds, ensuring a more stable and accurate correction.
+Why It Matters: Traditional two-point scaling methods can introduce instability when reference standards exhibit high variability. SINC’s regression-based approach uses all available standard compounds, ensuring a more stable and accurate correction.
 
 3️⃣ Outlier Detection & Handling
 
@@ -59,20 +59,20 @@ Why It Matters: Ensures full reproducibility of processing settings, useful for 
 
 ## How to Get Started
 
-1️⃣ Download IsoNQ
+1️⃣ Download SINC
 Clone this repository or download the package manually.
 
 2️⃣ Follow the tutorial
-See 📖 IsoNQ_tutorial.m for detailed instructions.
+See 📖 SINC_tutorial.m for detailed instructions.
 
 3️⃣ Run the workflow
 Use infoQ to set parameters and processQ to run the pipeline.
 
 🔗 Citation & References
-If you use IsoNQ in your research, please cite:
+If you use SINC in your research, please cite:
 📄 [Paper in review]
 
 For more details on the methodology and validation, refer to the manuscript.
 
 👥 Contributors & Contact
-IsoNQ is developed and maintained by Julian Traphagan. If you have any questions, issues, or suggestions, feel free to open an issue on GitHub or reach out at jtraph1@lsu.edu.
+SINC is developed and maintained by Julian Traphagan. If you have any questions, issues, or suggestions, feel free to open an issue on GitHub or reach out at jtraph1@lsu.edu.
