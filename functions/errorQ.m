@@ -44,7 +44,7 @@ IX = p.Results.IX;
 Plot = char(p.Results.Plot);
 Mode = IX.Mode;
 
-corstd = mean(table2array(AQ.CorrectionStds),1,'omitmissing');
+corstd = mean(table2array(AQ.CorrectionStds),1,'omitnan');
 
 tid = IX.SampleMatchLen;
 A = table(); As = table();

@@ -2,12 +2,16 @@
 % 1. Download the SINC package from GitHub and extract the files to a
 %    desired location.
 %
-% 2. (Optional) Move the directory named 'functions' to a location of your choice on
-%    your computer.
+% 2. (Optional) Move the directory named 'functions' to a location of your 
+%    choice on your computer.
 %
 % 3. In MATLAB, add this directory to the environment path by using:
 %    >> addpath('path_to_functions_directory');
 %    >> savepath;
+%
+%    You can also do this by going into the "Environment" tab and selecting
+%    'set path'. Then click 'add folder' and navigate to the SINC directory
+%    on you computer.
 %
 % 4. This tutorial is designed to be run from the SINC parent directory.
 %    To ensure all file paths work as intended, set the current MATLAB
@@ -127,7 +131,7 @@ p = 'no'; r = 'yes';
 
 writeQ(PX);
 
-writeQ(PX, 'OutputDir', 'Format', 'xlsx', 'Timestamp', false);
+writeQ(PX, 'OutputDir','output', 'Format', 'xlsx', 'Timestamp', false);
 
 
 
@@ -139,27 +143,6 @@ writeQ(PX, 'OutputDir', 'Format', 'xlsx', 'Timestamp', false);
 [EX2] = parseQ(fnames(2));
 
 [SX] = standardsQ(IX,EX1,EX2,'Plot','yes');
-
-
-%% MERGE MULTIPLE SINC DATASETS
-% Combine multiple processQ output structs (PX) into one struct. This is
-% useful if different standards were analyzed across multiple sessions for
-% one profile or group of samples.
-
-PX1 = processQ(fnames(1), IX, 'Plot', 'no');
-PX2 = processQ(fnames(2), IX, 'Plot', 'no');
-[MX] = mergeQ(PX1, PX2);
-
-
-%% SORTING DATA WITHIN THE MERGED STRUCT
-% To sort tables in the MX struct, try sortrows(...). For example, to sort
-% the replicate mean delta values by sample ID, use:
-
-delta_sorted = sortrows(MX.MeanDelta, 'ID');
-
-% Sorting options depend on what column structure is in each table.
-% Check available columns with:
-disp(MX.MeanDelta.Properties.VariableNames);
 
 
 %% TROUBLESHOOTING

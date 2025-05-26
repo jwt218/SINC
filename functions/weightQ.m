@@ -152,8 +152,7 @@ if strcmp(Plot,'yes')
         xlabel('\delta (‰)'); ylabel('Age'); box on;
         legend('\delta','\sigma','box','off','Location','best')
         text(0.01,0.05,sprintf('nC#: %s',string(cm(i))),'Units','normalized')
-        set(gca,'YDir','reverse','Position',[.08 .06 .9 .91]);
-        fontsize(f, 12, "points")
+        set(gca,'YDir','reverse','Position',[.08 .06 .9 .91],'FontSize',12);
         saveas(f,sprintf('./%s/%s/DeltaC%d_%s.png',fold,Mode,cm(i),Mode))
     end
 
@@ -168,8 +167,7 @@ if strcmp(Plot,'yes')
     xlabel('Weighted \delta (‰)'); ylabel('Age'); box on;
     legend('\delta','\sigma','box','off','Location','best')
     text(0.01,0.05,sprintf('Weight Components: %s',strjoin(string(cm))),'Units','normalized')
-    set(gca,'YDir','reverse','Position',[.08 .06 .9 .91]);
-    fontsize(f, 12, "points")
+    set(gca,'YDir','reverse','Position',[.08 .06 .9 .91],'FontSize',12);
     saveas(f,sprintf('./%s/%s/WeightedMean_%s.png',fold,Mode,Mode))
 end
 set(0, 'DefaultFigureVisible', 'off');
